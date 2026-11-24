@@ -1,0 +1,1327 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Qualquer um sabe cozinhar — CapriCorn’s</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --capri-cream: #FFF8E1;
+            --peach-prosecco: #FFD39B;
+            --sartorial-sand: #C7B299;
+            --cerulean-wave: #0097A7;
+            --naval-blue: #005075;
+            --midnight-gallop: #002D41;
+            --paper-white: #FFFDF7;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        body {
+            background-color: #162229;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: var(--midnight-gallop);
+            line-height: 1.65;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 32px 16px 64px;
+        }
+
+        /* Barra flutuante para impressão (oculta no PDF/impressão) */
+        .print-toolbar {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 1000;
+            display: flex;
+            gap: 12px;
+            background: rgba(0, 45, 65, 0.92);
+            backdrop-filter: blur(10px);
+            padding: 12px 18px;
+            border-radius: 999px;
+            border: 1px solid rgba(199, 178, 153, 0.35);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+        }
+
+        .print-btn {
+            background: var(--peach-prosecco);
+            color: var(--midnight-gallop);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 999px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 700;
+            font-size: 0.85rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+
+        .print-btn:hover {
+            background: #ffdfa8;
+            transform: translateY(-1px);
+        }
+
+        /* Estrutura de Página A4 */
+        .page {
+            width: 210mm;
+            height: 297mm;
+            background-color: var(--capri-cream);
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 28px;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            page-break-after: always;
+            break-after: page;
+        }
+
+        .page:last-of-type {
+            page-break-after: auto;
+            break-after: auto;
+            margin-bottom: 0;
+        }
+
+        /* Moldura editorial sutil nas páginas internas */
+        .page-inner-frame {
+            position: absolute;
+            top: 12mm;
+            left: 12mm;
+            right: 12mm;
+            bottom: 12mm;
+            border: 1px solid rgba(199, 178, 153, 0.45);
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        /* Cabeçalho e Rodapé das páginas internas */
+        .page-header {
+            padding: 18mm 22mm 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            color: var(--naval-blue);
+            font-weight: 600;
+            z-index: 3;
+        }
+
+        .page-footer {
+            padding: 0 22mm 16mm;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            color: var(--naval-blue);
+            z-index: 3;
+        }
+
+        .page-number {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--midnight-gallop);
+        }
+
+        h1, h2, h3, .serif {
+            font-family: 'Cormorant Garamond', serif;
+        }
+
+        /* ================= CAPA (PÁGINA 1) ================= */
+        .cover-page {
+            background-color: var(--midnight-gallop);
+            color: var(--capri-cream);
+            padding: 0;
+        }
+
+        .cover-frame {
+            position: absolute;
+            top: 10mm;
+            left: 10mm;
+            right: 10mm;
+            bottom: 10mm;
+            border: 1px solid rgba(255, 211, 155, 0.35);
+            z-index: 4;
+            pointer-events: none;
+        }
+
+        .cover-top {
+            padding: 20mm 22mm 10mm;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            z-index: 5;
+        }
+
+        .brand-lockup {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .brand-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.9rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            color: var(--capri-cream);
+        }
+
+        .brand-mark {
+            width: 52px;
+            height: 52px;
+            padding: 5px;
+            border-radius: 50%;
+            background: var(--capri-cream);
+            object-fit: contain;
+        }
+
+        .brand-tagline {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.28em;
+            color: var(--peach-prosecco);
+            margin-bottom: 18mm;
+        }
+
+        .cover-kicker {
+            display: inline-block;
+            padding: 6px 16px;
+            border: 1px solid var(--cerulean-wave);
+            border-radius: 999px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--peach-prosecco);
+            margin-bottom: 18px;
+            background: rgba(0, 151, 167, 0.14);
+        }
+
+        .cover-title {
+            font-size: 4.1rem;
+            line-height: 1.02;
+            font-weight: 700;
+            color: var(--capri-cream);
+            margin-bottom: 16px;
+            max-width: 155mm;
+        }
+
+        .cover-title span {
+            color: var(--peach-prosecco);
+            font-style: italic;
+            font-weight: 600;
+        }
+
+        .cover-subtitle {
+            font-size: 1.02rem;
+            font-weight: 300;
+            color: rgba(255, 248, 225, 0.85);
+            max-width: 138mm;
+            line-height: 1.6;
+        }
+
+        .cover-hero-image-wrap {
+            position: relative;
+            width: 100%;
+            height: 122mm;
+            margin-top: auto;
+            overflow: hidden;
+        }
+
+        .cover-hero-image-wrap::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 36mm;
+            background: linear-gradient(to bottom, var(--midnight-gallop) 0%, rgba(0, 45, 65, 0) 100%);
+            z-index: 2;
+        }
+
+        .cover-hero-image-wrap::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 28mm;
+            background: linear-gradient(to top, rgba(0, 45, 65, 0.92) 0%, rgba(0, 45, 65, 0) 100%);
+            z-index: 2;
+        }
+
+        .cover-hero-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            display: block;
+        }
+
+        .cover-bottom-bar {
+            position: absolute;
+            bottom: 14mm;
+            left: 22mm;
+            right: 22mm;
+            z-index: 5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.74rem;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--peach-prosecco);
+        }
+
+        /* ================= SUMÁRIO (PÁGINA 2) ================= */
+        .toc-body {
+            padding: 10mm 24mm;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            z-index: 3;
+        }
+
+        .manifesto-box {
+            background: var(--paper-white);
+            border-left: 4px solid var(--cerulean-wave);
+            border-top: 1px solid rgba(199, 178, 153, 0.5);
+            border-right: 1px solid rgba(199, 178, 153, 0.5);
+            border-bottom: 1px solid rgba(199, 178, 153, 0.5);
+            padding: 18px 22px;
+            border-radius: 0 10px 10px 0;
+            margin-bottom: 14px;
+        }
+
+        .manifesto-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--cerulean-wave);
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .manifesto-text {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.24rem;
+            font-style: italic;
+            color: var(--midnight-gallop);
+            line-height: 1.45;
+        }
+
+        .toc-heading {
+            font-size: 2.6rem;
+            font-weight: 700;
+            color: var(--midnight-gallop);
+            margin-bottom: 4px;
+        }
+
+        .toc-lead {
+            font-size: 0.9rem;
+            color: var(--naval-blue);
+            margin-bottom: 16px;
+        }
+
+        .toc-list {
+            display: flex;
+            flex-direction: column;
+            gap: 11px;
+        }
+
+        .toc-item {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 12px 16px;
+            background: rgba(255, 253, 247, 0.85);
+            border: 1px solid rgba(199, 178, 153, 0.55);
+            border-radius: 10px;
+        }
+
+        .toc-item-left {
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+        }
+
+        .toc-num {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.55rem;
+            font-weight: 700;
+            color: var(--cerulean-wave);
+            line-height: 1;
+            min-width: 28px;
+        }
+
+        .toc-title {
+            font-weight: 700;
+            font-size: 0.98rem;
+            color: var(--midnight-gallop);
+            margin-bottom: 2px;
+        }
+
+        .toc-desc {
+            font-size: 0.82rem;
+            color: var(--naval-blue);
+            line-height: 1.4;
+        }
+
+        .toc-pg {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--midnight-gallop);
+            background: var(--peach-prosecco);
+            padding: 2px 10px;
+            border-radius: 999px;
+            white-space: nowrap;
+        }
+
+        .palette-strip {
+            margin-top: 14px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(199, 178, 153, 0.55);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .palette-caption {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            color: var(--naval-blue);
+            font-weight: 600;
+        }
+
+        .swatches {
+            display: flex;
+            gap: 8px;
+        }
+
+        .swatch {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 1px solid rgba(0, 45, 65, 0.25);
+        }
+
+        /* ================= CAPÍTULOS (PÁGINAS 3 A 6) ================= */
+        .chapter-body {
+            padding: 8mm 22mm 6mm;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            z-index: 3;
+        }
+
+        .chapter-meta {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+
+        .chapter-badge {
+            background: var(--naval-blue);
+            color: var(--capri-cream);
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            padding: 4px 12px;
+            border-radius: 999px;
+        }
+
+        .chapter-theme {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            color: var(--cerulean-wave);
+            font-weight: 700;
+        }
+
+        .chapter-title {
+            font-size: 2.35rem;
+            line-height: 1.1;
+            font-weight: 700;
+            color: var(--midnight-gallop);
+            margin-bottom: 8px;
+        }
+
+        .chapter-intro {
+            font-size: 0.91rem;
+            color: var(--naval-blue);
+            margin-bottom: 12px;
+            line-height: 1.55;
+        }
+
+        .chapter-image-card {
+            position: relative;
+            width: 100%;
+            height: 64mm;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--sartorial-sand);
+            margin-bottom: 14px;
+            box-shadow: 0 8px 20px rgba(0, 45, 65, 0.12);
+        }
+
+        .chapter-image-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .chapter-img-caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0, 45, 65, 0.88), rgba(0, 45, 65, 0));
+            color: var(--capri-cream);
+            padding: 16px 14px 8px;
+            font-size: 0.74rem;
+            letter-spacing: 0.04em;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .tips-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .tip-card {
+            background: var(--paper-white);
+            border: 1px solid rgba(199, 178, 153, 0.65);
+            border-radius: 10px;
+            padding: 11px 13px;
+        }
+
+        .tip-card-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .tip-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--cerulean-wave);
+            flex-shrink: 0;
+        }
+
+        .tip-title {
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: var(--midnight-gallop);
+        }
+
+        .tip-text {
+            font-size: 0.79rem;
+            color: #163e52;
+            line-height: 1.45;
+        }
+
+        .dish-showcase {
+            background: var(--midnight-gallop);
+            color: var(--capri-cream);
+            border-radius: 12px;
+            padding: 13px 16px;
+            border-left: 4px solid var(--peach-prosecco);
+        }
+
+        .dish-showcase-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .dish-label {
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            color: var(--peach-prosecco);
+            font-weight: 700;
+        }
+
+        .dish-tag {
+            font-size: 0.68rem;
+            background: rgba(0, 151, 167, 0.3);
+            color: #9be7f0;
+            padding: 2px 9px;
+            border-radius: 999px;
+            border: 1px solid rgba(0, 151, 167, 0.55);
+        }
+
+        .dish-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--capri-cream);
+            margin-bottom: 3px;
+        }
+
+        .dish-desc {
+            font-size: 0.8rem;
+            color: rgba(255, 248, 225, 0.88);
+            line-height: 1.45;
+        }
+
+        /* ================= CONCLUSÃO E CTA (PÁGINA 7) ================= */
+        .closing-body {
+            padding: 8mm 22mm 8mm;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            z-index: 3;
+        }
+
+        .closing-title {
+            font-size: 2.5rem;
+            line-height: 1.08;
+            font-weight: 700;
+            color: var(--midnight-gallop);
+            margin-bottom: 10px;
+        }
+
+        .closing-lead {
+            font-size: 0.94rem;
+            color: var(--naval-blue);
+            margin-bottom: 12px;
+            line-height: 1.6;
+        }
+
+        .pillars-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .pillar-box {
+            background: var(--paper-white);
+            border: 1px solid rgba(199, 178, 153, 0.65);
+            border-top: 3px solid var(--cerulean-wave);
+            border-radius: 8px;
+            padding: 11px 12px;
+            text-align: center;
+        }
+
+        .pillar-box h4 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.15rem;
+            color: var(--midnight-gallop);
+            margin-bottom: 3px;
+        }
+
+        .pillar-box p {
+            font-size: 0.76rem;
+            color: var(--naval-blue);
+            line-height: 1.4;
+        }
+
+        .cta-card {
+            background: linear-gradient(135deg, var(--midnight-gallop) 0%, var(--naval-blue) 100%);
+            color: var(--capri-cream);
+            border-radius: 16px;
+            padding: 20px 22px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 211, 155, 0.4);
+            box-shadow: 0 14px 30px rgba(0, 45, 65, 0.22);
+        }
+
+        .cta-grid {
+            display: grid;
+            grid-template-columns: 1.25fr 0.75fr;
+            gap: 18px;
+            align-items: center;
+        }
+
+        .cta-kicker {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.22em;
+            color: var(--peach-prosecco);
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .cta-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2rem;
+            line-height: 1.1;
+            color: var(--capri-cream);
+            margin-bottom: 8px;
+        }
+
+        .cta-text {
+            font-size: 0.84rem;
+            color: rgba(255, 248, 225, 0.9);
+            line-height: 1.55;
+            margin-bottom: 14px;
+        }
+
+        .cta-pill {
+            display: inline-block;
+            background: var(--peach-prosecco);
+            color: var(--midnight-gallop);
+            font-weight: 700;
+            font-size: 0.8rem;
+            padding: 9px 18px;
+            border-radius: 999px;
+            text-decoration: none;
+            letter-spacing: 0.04em;
+        }
+
+        .cta-info-list {
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255, 248, 225, 0.18);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            font-size: 0.74rem;
+            color: var(--peach-prosecco);
+        }
+
+        .cta-photo {
+            width: 100%;
+            height: 54mm;
+            border-radius: 12px;
+            object-fit: cover;
+            border: 2px solid rgba(255, 211, 155, 0.5);
+        }
+
+        .signature-block {
+            text-align: center;
+            padding-top: 8px;
+        }
+
+        .signature-quote {
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-size: 1.15rem;
+            color: var(--midnight-gallop);
+        }
+
+        /* Regras de Impressão A4 */
+        @page {
+            size: A4 portrait;
+            margin: 0;
+        }
+
+        @media print {
+            body {
+                background: none;
+                padding: 0;
+                margin: 0;
+                display: block;
+            }
+
+            .print-toolbar {
+                display: none !important;
+            }
+
+            .page {
+                width: 210mm;
+                height: 297mm;
+                margin: 0;
+                box-shadow: none;
+                page-break-after: always;
+                break-after: page;
+            }
+
+            .page:last-of-type {
+                page-break-after: auto;
+                break-after: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Barra flutuante para gerar PDF / Imprimir -->
+    <div class="print-toolbar">
+        <button class="print-btn" onclick="window.print()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                <rect x="6" y="14" width="12" height="8"></rect>
+            </svg>
+            Imprimir / Salvar PDF (A4)
+        </button>
+    </div>
+
+    <!-- =====================================================================
+         PÁGINA 1: CAPA COM LOGO E TÍTULO
+         ===================================================================== -->
+    <section class="page cover-page">
+        <div class="cover-frame"></div>
+
+        <div class="cover-top">
+            <div class="brand-lockup">
+                <img class="brand-mark" src="capricorn-mark.png" alt="Emblema CapriCorn’s">
+                <span class="brand-name">CapriCorn’s</span>
+            </div>
+            <div class="brand-tagline">Alta Gastronomia Mediterrânea &bull; Espírito Campeão</div>
+
+            <div class="cover-kicker">Guia Gastronômico &amp; Manifesto Culinário</div>
+            <h1 class="cover-title">Qualquer um sabe <span>cozinhar</span></h1>
+            <p class="cover-subtitle">
+                Da liberdade intuitiva no fogão à elegância dos pratos mediterrâneos: como transformar ingredientes cotidianos em experiências memoráveis sem medo de errar.
+            </p>
+        </div>
+
+        <div class="cover-hero-image-wrap">
+            <img class="cover-hero-img" src="https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=1400&q=85" alt="Mesa mediterrânea elegante com frutos do mar e luz dourada">
+        </div>
+
+        <div class="cover-bottom-bar">
+            <span>Edição Especial &bull; CapriCorn’s</span>
+            <span>Do Básico ao Extraordinário</span>
+        </div>
+    </section>
+
+    <!-- =====================================================================
+         PÁGINA 2: SUMÁRIO & MANIFESTO
+         ===================================================================== -->
+    <section class="page">
+        <div class="page-inner-frame"></div>
+
+        <header class="page-header">
+            <span>CapriCorn’s &mdash; Guia Culinário</span>
+            <span>Sumário</span>
+        </header>
+
+        <main class="toc-body">
+            <div>
+                <div class="manifesto-box">
+                    <div class="manifesto-label">A Filosofia CapriCorn’s</div>
+                    <p class="manifesto-text">
+                        “Assim como um campeão das pistas nasce da disciplina sobre fundamentos simples, a alta gastronomia não mora na complicação — mora na liberdade de respeitar cada ingrediente, do pão dourado no azeite ao risoto de frutos do mar.”
+                    </p>
+                </div>
+
+                <h2 class="toc-heading">Sumário</h2>
+                <p class="toc-lead">Quatro passos práticos para perder o receio das panelas e trazer a brisa de Capri para a sua mesa.</p>
+
+                <div class="toc-list">
+                    <div class="toc-item">
+                        <div class="toc-item-left">
+                            <span class="toc-num">01</span>
+                            <div>
+                                <div class="toc-title">A Liberdade Antes da Receita</div>
+                                <div class="toc-desc">Por que abandonar medidas rígidas e aprender a usar os sentidos (olfato, som e textura) liberta sua criatividade na cozinha.</div>
+                            </div>
+                        </div>
+                        <span class="toc-pg">Pág. 03</span>
+                    </div>
+
+                    <div class="toc-item">
+                        <div class="toc-item-left">
+                            <span class="toc-num">02</span>
+                            <div>
+                                <div class="toc-title">A Despensa Mediterrânea Essencial</div>
+                                <div class="toc-desc">Azeite extravirgem, limão siciliano, ervas frescas e alho: como poucos elementos criam camadas profundas de sabor.</div>
+                            </div>
+                        </div>
+                        <span class="toc-pg">Pág. 04</span>
+                    </div>
+
+                    <div class="toc-item">
+                        <div class="toc-item-left">
+                            <span class="toc-num">03</span>
+                            <div>
+                                <div class="toc-title">O Básico Elevado ao Luxo</div>
+                                <div class="toc-desc">Técnicas simples de cocção, emulsão e finalização que transformam uma massa cotidiana ou grelhado em prato de restaurante.</div>
+                            </div>
+                        </div>
+                        <span class="toc-pg">Pág. 05</span>
+                    </div>
+
+                    <div class="toc-item">
+                        <div class="toc-item-left">
+                            <span class="toc-num">04</span>
+                            <div>
+                                <div class="toc-title">A Arte de Servir e Harmonizar</div>
+                                <div class="toc-desc">Contrastes visuais na louça, equilíbrio de acidez e o ritual de transformar qualquer refeição em celebração.</div>
+                            </div>
+                        </div>
+                        <span class="toc-pg">Pág. 06</span>
+                    </div>
+
+                    <div class="toc-item">
+                        <div class="toc-item-left">
+                            <span class="toc-num">05</span>
+                            <div>
+                                <div class="toc-title">Conclusão &amp; Convite à Nossa Mesa</div>
+                                <div class="toc-desc">Do seu fogão para o salão do CapriCorn’s: venha vivenciar a nossa cozinha de perto.</div>
+                            </div>
+                        </div>
+                        <span class="toc-pg">Pág. 07</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="palette-strip">
+                <span class="palette-caption">Identidade CapriCorn’s &bull; Paleta Mediterrânea</span>
+                <div class="swatches" title="Capri Cream, Peach Prosecco, Sartorial Sand, Cerulean Wave, Naval Blue, Midnight Gallop">
+                    <span class="swatch" style="background:#FFF8E1;"></span>
+                    <span class="swatch" style="background:#FFD39B;"></span>
+                    <span class="swatch" style="background:#C7B299;"></span>
+                    <span class="swatch" style="background:#0097A7;"></span>
+                    <span class="swatch" style="background:#005075;"></span>
+                    <span class="swatch" style="background:#002D41;"></span>
+                </div>
+            </div>
+        </main>
+
+        <footer class="page-footer">
+            <span>Qualquer um sabe cozinhar</span>
+            <span class="page-number">02</span>
+        </footer>
+    </section>
+
+    <!-- =====================================================================
+         PÁGINA 3: CAPÍTULO 1
+         ===================================================================== -->
+    <section class="page">
+        <div class="page-inner-frame"></div>
+
+        <header class="page-header">
+            <span>CapriCorn’s &mdash; Guia Culinário</span>
+            <span>Capítulo 01</span>
+        </header>
+
+        <main class="chapter-body">
+            <div>
+                <div class="chapter-meta">
+                    <span class="chapter-badge">Capítulo 01</span>
+                    <span class="chapter-theme">Mentalidade &amp; Intuição</span>
+                </div>
+                <h2 class="chapter-title">A Liberdade Antes da Receita</h2>
+                <p class="chapter-intro">
+                    Muitas pessoas travam na cozinha porque enxergam receitas como fórmulas matemáticas inflexíveis. Na tradição mediterrânea, a receita é apenas um mapa inicial: quem conduz o ritmo é você, provando e ajustando a cada minuto.
+                </p>
+
+                <div class="chapter-image-card">
+                    <img src="https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&w=1200&q=85" alt="Preparo artesanal com ingredientes frescos na bancada">
+                    <div class="chapter-img-caption">
+                        <span>Cozinhar é observar, provar e ajustar com confiança</span>
+                        <span>CapriCorn’s Kitchen</span>
+                    </div>
+                </div>
+
+                <div class="tips-grid">
+                    <div class="tip-card">
+                        <div class="tip-card-header">
+                            <span class="tip-dot"></span>
+                            <span class="tip-title">Prove em Todas as Etapas</span>
+                        </div>
+                        <p class="tip-text">Não espere o prato ficar pronto para acertar o sal. Prove o refogado, o molho e a finalização para entender como o sabor evolui.</p>
+                    </div>
+
+                    <div class="tip-card">
+                        <div class="tip-card-header">
+                            <span class="tip-dot"></span>
+                            <span class="tip-title">Controle o Fogo, Não o Relógio</span>
+                        </div>
+                        <p class="tip-text">Cada fogão tem uma potência. Ouça o chiado da frigideira: dourar exige calor firme; apurar molhos pede paciência em fogo baixo.</p>
+                    </div>
+
+                    <div class="tip-card">
+                        <div class="tip-card-header">
+                            <span class="tip-dot"></span>
+                            <span class="tip-title">Substitua Sem Medo</span>
+                        </div>
+                        <p class="tip-text">Faltou manjericão? Use salsinha fresca ou raspas de limão. Entender a função do ingrediente (frescor, acidez ou textura) dá total autonomia.</p>
+                    </div>
+
+                    <div class="tip-card">
+                        <div class="tip-card-header">
+                            <span class="tip-dot"></span>
+                            <span class="tip-title">Mise en Place Tranquilo</span>
+                        </div>
+                        <p class="tip-text">Deixe tudo picado e à mão antes de acender o fogo. Quando a bancada está organizada, cozinhar deixa de ser pressa e vira prazer.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dish-showcase">
+                <div class="dish-showcase-top">
+                    <span class="dish-label">Prato-Escola &bull; Do Simples ao Memorável</span>
+                    <span class="dish-tag">15 Minutos</span>
+                </div>
+                <div class="dish-title">Bruschetta Rústica de Tomates Confitados &amp; Ricota Fresca</div>
+                <p class="dish-desc">
+                    Pão italiano tostado no azeite com dente de alho esfregado, creme aerado de ricota com flor de sal, tomates-cereja salteados rapidamente até estourarem e folhas rasgadas de manjericão. Simples, rápido e digno de entrada de gala.
+                </p>
+            </div>
+        </main>
+
+        <footer class="page-footer">
+            <span>Qualquer um sabe cozinhar</span>
+            <span class="page-number">03</span>
+        </footer>
+    </section>
+
+    <!-- =====================================================================
+         PÁGINA 4: CAPÍTULO 2
+         ===================================================================== -->
+    <section class="page">
+        <div class="page-inner-frame"></div>
+
+        <header class="page-header">
+            <span>CapriCorn’s &mdash; Guia Culinário</span>
+            <span>Capítulo 02</span>
+        </header>
+
+        <main class="chapter-body">
+            <div>
+                <div class="chapter-meta">
+                    <span class="chapter-badge">Capítulo 02</span>
+                    <span class="chapter-theme">Aromas &amp; Base Saborosa</span>
+                </div>
+                <h2 class="chapter-title">A Despensa Mediterrânea Essencial</h2>
+                <p class="chapter-intro">
+                    Você não precisa de dezenas de temperos industrializados para criar pratos complexos. A cozinha da ilha de Capri apoia-se em poucos pilares naturais que despertam o paladar com leveza e intensidade.
+                </p>
+
+                <div class="chapter-image-card">
+                    <img src="https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=1200&q=85" alt="Azeite extravirgem, limão siciliano e ervas frescas mediterrâneas">
+                    <div class="chapter-img-caption">
+                        <span>Azeite, cítricos e ervas: a tríade solar do Mediterrâneo</span>
+                        <span>CapriCorn’s Pantry</span>
+                    </div>
+                </div>
+
+                <div class="tips-grid">
+                    <div class="tip-card">
+                        <div class="tip-card-header">
+                            <span class="tip-dot"></span>
+                            <span class="tip-title">Dois Azeites, Dois Papéis</span>
+                        </div>
+                        <p class="tip-text">Use um bom azeite para refogar e reserve um extravirgem frutado apenas para finalizar o prato frio, preservando seus aromas florais.</p>
+                    </div>
+
+                    <div class="tip-card">
+                        <div class="tip-card-header">
+                            <span class="tip-dot"></span>
+                            <span class="tip-title">O Poder da Acidez Cítrica</span>
+                        </div>
+                        <p class="tip-text">Algumas gotas de limão siciliano ou vinho branco no final da cocção "acordam" molhos pesados e equilibram pratos ricos em gordura.</p>
+                    </div>
+
+                    <div class="tip-card">
+                        <div class="tip-card-header">
+                            <span class="tip-dot"></span>
+                            <span class="tip-title">Alho Dourado, Nunca Queimado</span>
+                        </div>
+                        <p class="tip-text">Lamine o alho e coloque-o no azeite ainda morno. Assim ele perfuma todo o óleo suavemente sem deixar amargor.</p>
+                    </div>
+
+                    <div class="tip-card">
+                        <div class="tip-card-header">
+                            <span class="tip-dot"></span>
+                            <span class="tip-title">Ervas no Momento Certo</span>
+                        </div>
+                        <p class="tip-text">Ervas lenhosas (alecrim, tomilho) entram no início do cozimento. Ervas delicadas (manjericão, hortelã) entram apenas ao desligar o fogo.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dish-showcase">
+                <div class="dish-showcase-top">
+                    <span class="dish-label">Prato-Escola &bull; Frescor e Elegância</span>
+                    <span class="dish-tag">20 Minutos</span>
+                </div>
+                <div class="dish-title">Spaghetti al Limone com Raspas de Siciliano &amp; Parmigiano</div>
+                <p class="dish-desc">
+                    Massa cozida al dente finalizada diretamente na frigideira com manteiga gelada, suco e raspas de limão siciliano, queijo curado e um fio generoso de azeite extravirgem. Uma prova de que quatro ingredientes bem tratados superam qualquer excesso.
+                </p>
+            </div>
+        </main>
+
+        <footer class="page-footer">
+            <span>Qualquer um sabe cozinhar</span>
+            <span class="page-number">04</span>
+        </footer>
+    </section>
+
+    <!-- =====================================================================
+         PÁGINA 5: CAPÍTULO 3
+         ===================================================================== -->
+    <section class="page">
+        <div class="page-inner-frame"></div>
+
+        <header class="page-header">
+            <span>CapriCorn’s &mdash; Guia Culinário</span>
+            <span>Capítulo 03</span>
+        </header>
+
+        <main class="chapter-body">
+            <div>
+                <div class="chapter-meta">
+                    <span class="chapter-badge">Capítulo 03</span>
+                    <span class="chapter-theme">Técnica &amp; Precisão</span>
+                </div>
+                <h2 class="chapter-title">O Básico Elevado ao Luxo</h2>
+                <p class="chapter-intro">
+                    O que diferencia um prato caseiro comum de uma experiência de alta gastronomia raramente é o preço do insumo, mas sim o domínio de pequenos gestos técnicos que criam textura, brilho e suculência.
+                </p>
+
+                <div class="chapter-image-card">
+                    <img src="https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=1200&q=85" alt="Risoto cremoso de frutos do mar servido em prato escuro elegante">
+                    <div class="chapter-img-caption">
+                        <span>Emulsão e ponto de cocção: o segredo da cremosidade perfeita</span>
+                        <span>CapriCorn’s Technique</span>
+                    </div>
+                </div>
+
+                <div class="tips-grid">
+                    <div class="tip-card">
+                        <div class="tip-card-header">
+                            <span class="tip-dot"></span>
+                            <span class="tip-title">Ouro Líquido: Água da Massa</span>
+                        </div>
+                        <p class="tip-text">Nunca descarte toda a água do cozimento da massa. Rica em amido, meia concha dela emulsiona azeite e queijo em um molho aveludado.</p>
+                    </div>
+
+                    <div class="tip-card">
+                        <div class="tip-card-header">
+                            <span class="tip-dot"></span>
+                            <span class="tip-title">Sele Proteínas Sem Mexer</span>
+                        </div>
+                        <p class="tip-text">Ao colocar um peixe, camarão ou corte de carne na frigideira quente, deixe-o criar crosta dourada antes de virar. Cor é sinônimo de sabor.</p>
+                    </div>
+
+                    <div class="tip-card">
+                        <div class="tip-card-header">
+                            <span class="tip-dot"></span>
+                            <span class="tip-title">Deglaceie o Fundo da Panela</span>
+                        </div>
+                        <p class="tip-text">Aquela crostinha dourada no fundo da frigideira é pura concentração de sabor. Adicione um toque de vinho ou caldo para dissolvê-la no molho.</p>
+                    </div>
+
+                    <div class="tip-card">
+                        <div class="tip-card-header">
+                            <span class="tip-dot"></span>
+                            <span class="tip-title">O Descanso das Carnes</span>
+                        </div>
+                        <p class="tip-text">Retirou do fogo? Aguarde 3 minutos antes de fatiar. Isso redistribui os sucos internos e garante maciez absoluta em cada garfada.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dish-showcase">
+                <div class="dish-showcase-top">
+                    <span class="dish-label">Prato-Escola &bull; Clássico Costeiro</span>
+                    <span class="dish-tag">30 Minutos</span>
+                </div>
+                <div class="dish-title">Risotto Costiero de Camarões Salteados &amp; Emulsão Cítrica</div>
+                <p class="dish-desc">
+                    Arroz arbóreo tostado no azeite, cozido lentamente com caldo aromático de legumes e finalizado fora do fogo com manteiga gelada (mantecatura) e camarões selados rapidamente para preservar toda a suculência do mar.
+                </p>
+            </div>
+        </main>
+
+        <footer class="page-footer">
+            <span>Qualquer um sabe cozinhar</span>
+            <span class="page-number">05</span>
+        </footer>
+    </section>
+
+    <!-- =====================================================================
+         PÁGINA 6: CAPÍTULO 4
+         ===================================================================== -->
+    <section class="page">
+        <div class="page-inner-frame"></div>
+
+        <header class="page-header">
+            <span>CapriCorn’s &mdash; Guia Culinário</span>
+            <span>Capítulo 04</span>
+        </header>
+
+        <main class="chapter-body">
+            <div>
+                <div class="chapter-meta">
+                    <span class="chapter-badge">Capítulo 04</span>
+                    <span class="chapter-theme">Estética &amp; Hospitalidade</span>
+                </div>
+                <h2 class="chapter-title">A Arte de Servir e Harmonizar</h2>
+                <p class="chapter-intro">
+                    Comemos primeiro com os olhos e com a atmosfera ao redor da mesa. No CapriCorn’s, cada detalhe — da escolha do prato ao brinde inicial — transforma uma refeição cotidiana em uma lembrança inesquecível.
+                </p>
+
+                <div class="chapter-image-card">
+                    <img src="https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=1200&q=85" alt="Taça de espumante Peach Prosecco e mesa posta com elegância">
+                    <div class="chapter-img-caption">
+                        <span>Contraste cromático, altura e um bom brinde completam a experiência</span>
+                        <span>CapriCorn’s Table</span>
+                    </div>
+                </div>
+
+                <div class="tips-grid">
+                    <div class="tip-card">
+                        <div class="tip-card-header">
+                            <span class="tip-dot"></span>
+                            <span class="tip-title">Respeite as Bordas do Prato</span>
+                        </div>
+                        <p class="tip-text">Deixe sempre uma moldura limpa ao redor da comida. Centralizar o preparo valoriza o alimento e traz estética imediata de restaurante.</p>
+                    </div>
+
+                    <div class="tip-card">
+                        <div class="tip-card-header">
+                            <span class="tip-dot"></span>
+                            <span class="tip-title">Brinque com Contrastes de Cor</span>
+                        </div>
+                        <p class="tip-text">Pratos claros e massas douradas ganham destaque absoluto em louças azul-marinho; saladas vibrantes brilham em cerâmica creme.</p>
+                    </div>
+
+                    <div class="tip-card">
+                        <div class="tip-card-header">
+                            <span class="tip-dot"></span>
+                            <span class="tip-title">Textura Crocante no Final</span>
+                        </div>
+                        <p class="tip-text">Finalize pratos cremosos com castanhas tostadas, pão rústico esfarelado ou raspas cítricas para surpreender o paladar a cada mordida.</p>
+                    </div>
+
+                    <div class="tip-card">
+                        <div class="tip-card-header">
+                            <span class="tip-dot"></span>
+                            <span class="tip-title">O Ritual do Brinde</span>
+                        </div>
+                        <p class="tip-text">Sirva um espumante bem gelado ou bebida cítrica antes do prato principal. A acidez limpa o paladar e prepara os sentidos para o jantar.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dish-showcase">
+                <div class="dish-showcase-top">
+                    <span class="dish-label">Assinatura da Casa &bull; Celebração</span>
+                    <span class="dish-tag">Harmonização</span>
+                </div>
+                <div class="dish-title">Filé de Peixe Branco Grelhado com Crosta de Ervas &amp; Peach Prosecco</div>
+                <p class="dish-desc">
+                    Lombo de peixe fresco selado com pele crocante, servido sobre purê leve de couve-flor e azeite de ervas, acompanhado de uma taça gelada de espumante com néctar de pêssego branco — o equilíbrio perfeito entre o mar e o pôr do sol de Capri.
+                </p>
+            </div>
+        </main>
+
+        <footer class="page-footer">
+            <span>Qualquer um sabe cozinhar</span>
+            <span class="page-number">06</span>
+        </footer>
+    </section>
+
+    <!-- =====================================================================
+         PÁGINA 7: CONCLUSÃO E CHAMADA FINAL PARA O RESTAURANTE
+         ===================================================================== -->
+    <section class="page">
+        <div class="page-inner-frame"></div>
+
+        <header class="page-header">
+            <span>CapriCorn’s &mdash; Guia Culinário</span>
+            <span>Conclusão &amp; Convite</span>
+        </header>
+
+        <main class="closing-body">
+            <div>
+                <div class="chapter-meta">
+                    <span class="chapter-badge">Conclusão</span>
+                    <span class="chapter-theme">O Próximo Passo</span>
+                </div>
+                <h2 class="closing-title">A Cozinha é Sua. A Mesa é Nossa.</h2>
+                <p class="closing-lead">
+                    Cozinhar com liberdade é descobrir que o extraordinário não está distante do nosso dia a dia. Quando você perde o medo de testar, ajusta o tempero com intuição e valoriza ingredientes frescos, cada refeição se torna uma assinatura pessoal.
+                </p>
+                <p class="closing-lead" style="margin-bottom: 14px;">
+                    Foi exatamente essa paixão — unir o acolhimento dos pratos cotidianos ao rigor e à beleza da alta gastronomia mediterrânea — que deu origem ao <strong>CapriCorn’s</strong>. Agora que você já conhece os bastidores da nossa filosofia, queremos receber você no nosso salão.
+                </p>
+
+                <div class="pillars-row">
+                    <div class="pillar-box">
+                        <h4>Origem &amp; Alma</h4>
+                        <p>Inspirado na brisa solar da ilha de Capri e na determinação lendária de Oguri Cap.</p>
+                    </div>
+                    <div class="pillar-box">
+                        <h4>Do Básico ao Luxo</h4>
+                        <p>Clássicos reconfortantes elevados ao mais alto padrão técnico e sensorial.</p>
+                    </div>
+                    <div class="pillar-box">
+                        <h4>Atmosfera Única</h4>
+                        <p>Hospitalidade calorosa, jazz envolvente e louçaria artesanal em cada detalhe.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cta-card">
+                <div class="cta-grid">
+                    <div>
+                        <div class="cta-kicker">Experiência Presencial</div>
+                        <h3 class="cta-title">Venha Vivenciar o CapriCorn’s</h3>
+                        <p class="cta-text">
+                            Deixe nossa equipe cuidar de cada detalhe da sua noite. Descubra nosso menu autoral de frutos do mar, massas artesanais e brindes exclusivos em um ambiente pensado para encantar todos os seus sentidos.
+                        </p>
+                        <a href="#reservas" class="cta-pill">Reserve Sua Mesa &bull; capricorns.com.br</a>
+
+                        <div class="cta-info-list">
+                            <span><strong>Terça a Domingo:</strong> 19h às 23h30</span>
+                            <span><strong>Almoço Executivo &amp; Fim de Semana:</strong> 12h às 15h30</span>
+                            <span><strong>Instagram:</strong> @capricorns.restaurante</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <img class="cta-photo" src="https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?auto=format&fit=crop&w=800&q=85" alt="Ambiente sofisticado do restaurante CapriCorn's">
+                    </div>
+                </div>
+            </div>
+
+            <div class="signature-block">
+                <p class="signature-quote">“CapriCorn’s — Sabor e arte em toda parte.”</p>
+            </div>
+        </main>
+
+        <footer class="page-footer">
+            <span>CapriCorn’s &copy; Todos os direitos reservados</span>
+            <span class="page-number">07</span>
+        </footer>
+    </section>
+
+</body>
+</html>
